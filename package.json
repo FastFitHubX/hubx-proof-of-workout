@@ -1,0 +1,15 @@
+{
+  "name": "hubx-proof-of-workout",
+  "version": "1.0.0",
+  "description": "Backend service for FastFitHub Proof-of-Workout protocol",
+  "main": "api/server.js",
+  "scripts": {
+    "start": "node api/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
