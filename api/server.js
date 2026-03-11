@@ -9,7 +9,8 @@ const rewardCalculator = new RewardCalculator();
 app.use(express.json());
 
 // POST /activity/submit - Accept workout data and return verification + rewards
-app.post('/activity/submit', (req, res) => {
+app.post("/activity/submit", (req, res) => {
+  console.log("Workout received:", req.body);
   const { duration, heart_rate, distance, movement_flag } = req.body;
 
   // Input validation
@@ -35,11 +36,13 @@ app.post('/activity/submit', (req, res) => {
 
   // Verify activity
   const verificationResult = verifier.verify(duration, heart_rate, movement_flag);
+  console.log("Verification result:", verificationResult);
 
   // Calculate rewards if verified
   let rewards = null;
   if (verificationResult.verified) {
     rewards = rewardCalculator.calculateRewards(verificationResult.activityScore);
+    console.log("Rewards calculated:", rewards);
   }
 
   // Return result

@@ -1,5 +1,9 @@
 class PoWkVerifier {
+  constructor() {
+    console.log("PoWkVerifier initialized.");
+  }
   verify(duration, heart_rate, movement_flag) {
+    console.log(`Verifying workout: Duration=${duration}, HeartRate=${heart_rate}, Movement=${movement_flag}`);
     const verified = duration >= 20 && heart_rate >= 110 && movement_flag === true;
     let activityScore = 0;
 
@@ -16,6 +20,7 @@ class PoWkVerifier {
       activityScore = duration * intensityMultiplier;
     }
 
+    console.log("Verification outcome:", { verified, activityScore });
     return {
       verified,
       activityScore: parseFloat(activityScore.toFixed(2))
