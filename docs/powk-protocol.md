@@ -57,3 +57,41 @@ The `activityScore` is converted into cryptocurrency rewards for $HUBX, Bitcoin 
 *   `DOGE_reward_rate`: 0.1
 
 These rates are configurable and can be adjusted based on protocol economics and market conditions.
+
+## 5. API Endpoint Example
+
+### `POST /activity/submit`
+
+This endpoint accepts workout data, validates it, calculates an activity score, and determines the corresponding cryptocurrency rewards.
+
+**Request Body:**
+
+```json
+{
+  "duration": 30,        // in minutes (5-240)
+  "heart_rate": 130,     // in bpm (60-220)
+  "distance": 5.2,       // in km (0-100)
+  "movement_flag": true
+}
+```
+
+**Response Body:**
+
+```json
+{
+  "verified": true,
+  "activityScore": 48,
+  "rewards": {
+    "hubx": 24,
+    "btc": 0.00001,
+    "doge": 5
+  }
+}
+```
+
+**Input Validation Rules:**
+
+*   `duration`: Must be a number between 5 and 240 (minutes).
+*   `heart_rate`: Must be a number between 60 and 220 (bpm).
+*   `distance`: Must be a number between 0 and 100 (km).
+*   `movement_flag`: Must be a boolean value.
