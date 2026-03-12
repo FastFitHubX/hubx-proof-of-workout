@@ -1,5 +1,7 @@
 # hubx-proof-of-workout
 
+![Proof-of-Workout CI](https://github.com/hubx-proof-of-workout/actions/workflows/ci.yml/badge.svg)
+
 Backend service for FastFitHub Proof-of-Workout (PoWk) protocol.
 
 ## Overview
