@@ -208,3 +208,38 @@ The backend incorporates comprehensive logging to monitor key operations and fac
 - **Input Validation:** All incoming API requests are validated against expected data types and ranges. Invalid inputs result in a `400 Bad Request` response with a descriptive error message.
 - **Resource Not Found:** Attempts to retrieve non-existent resources (e.g., a proof certificate for an invalid `workoutId`) result in a `404 Not Found` response.
 - **Internal Server Errors:** Unforeseen errors are caught, logged, and result in a generic `500 Internal Server Error` to prevent sensitive information leakage.
+
+## 9. Blockchain Anchoring (Solana)
+
+To provide an immutable and verifiable record of Proof-of-Workout certificates, each generated `proofHash` is anchored to the Solana blockchain. This process involves submitting the `proofHash` as part of a Solana transaction, with the transaction signature serving as a verifiable timestamp and proof of existence on a decentralized ledger.
+
+### Mechanism:
+
+1.  **Hash Generation**: A deterministic SHA256 `proofHash` is generated from the workout data.
+2.  **Transaction Creation**: The `proofHash` is embedded within a Solana transaction, typically in the memo field or as part of a custom program instruction.
+3.  **Transaction Submission**: The transaction is signed and submitted to the Solana network.
+4.  **Transaction Signature**: Upon successful inclusion in a block, a unique `solanaTx` (transaction signature) is returned.
+
+This `solanaTx` acts as a public reference, allowing anyone to verify that a specific `proofHash` was recorded on the Solana blockchain at a given time.
+
+### API Response Update:
+
+The `POST /activity/submit` endpoint now includes the `solanaTx` in its response, providing a direct link to the on-chain record.
+
+**Example Response Body with `solanaTx`:**
+
+```json
+{
+  "verified": true,
+  "activityScore": 36,
+  "rewards": {
+    "hubx": 18,
+    "btc": 0.0000036,
+    "doge": 3.6
+  },
+  "proofHash": "0ff80d8731db185d8e3f6344356d7f2f872bd7388e24be42428d4353a6d1f2b6",
+  "solanaTx": "5oK1n123456789abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+}
+```
+
+**Note:** For development and testing purposes, the `solanaTx` might be a simulated signature. In a production environment, a funded Solana account and the actual Solana Memo Program would be utilized for on-chain anchoring.

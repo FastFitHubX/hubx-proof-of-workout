@@ -2,16 +2,18 @@ const express = require('express');
 const PoWkVerifier = require('../verification-engine/powk-verifier');
 const RewardCalculator = require('../reward-engine/reward-calculator');
 const ProofRegistry = require('../proof-registry/proof-registry');
+const SolanaAnchor = require('../blockchain-anchor/solana-anchor');
 
 const app = express();
 const verifier = new PoWkVerifier();
 const rewardCalculator = new RewardCalculator();
 const proofRegistry = new ProofRegistry();
+const solanaAnchor = new SolanaAnchor();
 
 app.use(express.json());
 
-// POST /activity/submit - Accept workout data and return verification + rewards
-app.post("/activity/submit", (req, res) => {
+// POST /activity/submit - Accept workout data and return verification + rewards + blockchain anchor
+app.post("/activity/submit", async (req, res) => {
   console.log("Workout received:", req.body);
   const { duration, heart_rate, distance, movement_flag, workoutId } = req.body;
 
@@ -47,11 +49,24 @@ app.post("/activity/submit", (req, res) => {
     console.log("Rewards calculated:", rewards);
   }
 
+  // Generate proof hash
+  const workoutData = { duration, heart_rate, distance, movement_flag };
+  const proofHash = proofRegistry.generateProofHash(workoutData);
+
+  // Anchor to Solana if verified
+  let solanaTx = null;
+  if (verificationResult.verified) {
+    try {
+      solanaTx = await solanaAnchor.anchorProof(proofHash);
+    } catch (error) {
+      console.error("Blockchain anchoring failed, but continuing with response:", error.message);
+    }
+  }
+
   // Store proof if workoutId is provided
   let proof = null;
   if (workoutId) {
-    const workoutData = { duration, heart_rate, distance, movement_flag };
-    proof = proofRegistry.storeProof(workoutId, workoutData, verificationResult, rewards);
+    proof = proofRegistry.storeProof(workoutId, workoutData, verificationResult, rewards, solanaTx);
   }
 
   // Return result
@@ -59,7 +74,8 @@ app.post("/activity/submit", (req, res) => {
     verified: verificationResult.verified,
     activityScore: verificationResult.activityScore,
     rewards: rewards,
-    proofHash: proof ? proof.proofHash : null
+    proofHash: proofHash,
+    solanaTx: solanaTx // Include the transaction reference in the response
   });
 });
 

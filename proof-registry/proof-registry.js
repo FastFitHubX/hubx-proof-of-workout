@@ -19,7 +19,7 @@ class ProofRegistry {
     return crypto.createHash('sha256').update(dataString).digest('hex');
   }
 
-  storeProof(workoutId, workoutData, verificationResult, rewards) {
+  storeProof(workoutId, workoutData, verificationResult, rewards, solanaTx = null) {
     const proofHash = this.generateProofHash(workoutData);
     const proof = {
       workoutId,
@@ -27,11 +27,23 @@ class ProofRegistry {
       verificationResult,
       rewards,
       proofHash,
+      solanaTx, // Store the Solana transaction signature
       timestamp: new Date().toISOString()
     };
     this.proofs.set(workoutId, proof);
-    console.log(`Proof stored for workoutId: ${workoutId}, hash: ${proofHash}`);
+    console.log(`Proof stored for workoutId: ${workoutId}, hash: ${proofHash}, solanaTx: ${solanaTx}`);
     return proof;
+  }
+
+  updateSolanaTx(workoutId, solanaTx) {
+    const proof = this.proofs.get(workoutId);
+    if (proof) {
+      proof.solanaTx = solanaTx;
+      this.proofs.set(workoutId, proof);
+      console.log(`Updated Solana transaction for workoutId: ${workoutId}, solanaTx: ${solanaTx}`);
+      return proof;
+    }
+    return null;
   }
 
   getProof(workoutId) {
