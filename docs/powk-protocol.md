@@ -22,6 +22,30 @@ A workout is considered **verified** if and only if:
 
 If these conditions are met, the `workout_verified` status is set to `true`, and an `activityScore` is calculated.
 
+### Input Validation Rules:
+
+*   `duration`: Must be a number between 5 and 240 (minutes).
+*   `heart_rate`: Must be a number between 60 and 220 (bpm).
+*   `distance`: Must be a number between 0 and 100 (km).
+*   `movement_flag`: Must be a boolean value.
+
+### Anti-Cheat Checks:
+
+To prevent unrealistic activity submissions, the following anti-cheat checks are applied:
+
+*   **Unrealistic Speed:** If `running_speed` (calculated as `distance / (duration / 60)`) exceeds 35 km/h, the activity is rejected.
+*   **Suspicious Heart Rate:** A heart rate below 70 bpm for a workout duration of 20 minutes or more is flagged as suspicious (though it may not automatically invalidate the workout if other conditions are met).
+
+## 2.1. Verification Flow
+
+1.  **Input Reception:** The API receives workout data (duration, heart_rate, distance, movement_flag).
+2.  **Input Validation:** The data is first validated against predefined ranges and types. If validation fails, an error response is returned.
+3.  **Core Verification:** If input is valid, the core PoWk rules are applied (duration, heart rate, movement flag).
+4.  **Anti-Cheat Analysis:** Additional checks are performed to identify and reject unrealistic or fraudulent activities.
+5.  **Activity Scoring:** For verified activities, an `activityScore` is calculated based on duration and heart rate intensity.
+6.  **Reward Calculation:** The `activityScore` is then used to calculate multi-asset cryptocurrency rewards.
+7.  **Result Output:** The API returns the verification status, activity score, and calculated rewards.
+
 ## 3. Activity Scoring Function
 
 For verified workouts, an `activityScore` is calculated to quantify the intensity and duration of the activity. This score is a primary factor in determining the rewards.
@@ -88,10 +112,3 @@ This endpoint accepts workout data, validates it, calculates an activity score, 
   }
 }
 ```
-
-**Input Validation Rules:**
-
-*   `duration`: Must be a number between 5 and 240 (minutes).
-*   `heart_rate`: Must be a number between 60 and 220 (bpm).
-*   `distance`: Must be a number between 0 and 100 (km).
-*   `movement_flag`: Must be a boolean value.
