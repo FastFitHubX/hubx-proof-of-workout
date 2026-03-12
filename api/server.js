@@ -15,27 +15,27 @@ app.post("/activity/submit", (req, res) => {
 
   // Input validation
   if (duration === undefined || heart_rate === undefined || distance === undefined || movement_flag === undefined) {
-    return res.status(400).json({ error: 'Missing required fields: duration, heart_rate, distance, movement_flag' });
+    return res.status(400).json({ verified: false, error: 'Missing required fields: duration, heart_rate, distance, movement_flag' });
   }
 
   if (typeof duration !== 'number' || duration < 5 || duration > 240) {
-    return res.status(400).json({ error: 'Invalid duration. Must be a number between 5 and 240 minutes.' });
+    return res.status(400).json({ verified: false, error: 'Invalid duration. Must be a number between 5 and 240 minutes.' });
   }
 
   if (typeof heart_rate !== 'number' || heart_rate < 60 || heart_rate > 220) {
-    return res.status(400).json({ error: 'Invalid heart_rate. Must be a number between 60 and 220 bpm.' });
+    return res.status(400).json({ verified: false, error: 'Invalid heart_rate. Must be a number between 60 and 220 bpm.' });
   }
 
   if (typeof distance !== 'number' || distance < 0 || distance > 100) { // Assuming distance in km, max 100km for a single workout
-    return res.status(400).json({ error: 'Invalid distance. Must be a number between 0 and 100 km.' });
+    return res.status(400).json({ verified: false, error: 'Invalid distance. Must be a number between 0 and 100 km.' });
   }
 
   if (typeof movement_flag !== 'boolean') {
-    return res.status(400).json({ error: 'Invalid movement_flag. Must be a boolean.' });
+    return res.status(400).json({ verified: false, error: 'Invalid movement_flag. Must be a boolean.' });
   }
 
   // Verify activity
-  const verificationResult = verifier.verify(duration, heart_rate, movement_flag);
+  const verificationResult = verifier.verify(duration, heart_rate, distance, movement_flag);
   console.log("Verification result:", verificationResult);
 
   // Calculate rewards if verified
