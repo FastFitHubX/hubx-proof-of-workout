@@ -112,3 +112,99 @@ This endpoint accepts workout data, validates it, calculates an activity score, 
   }
 }
 ```
+
+## 6. Proof Certificate Model
+
+Upon successful verification and reward calculation, a **Proof Certificate** is generated and stored. This certificate serves as an immutable record of the workout activity and its associated outcomes.
+
+**Proof Certificate Structure:**
+
+```json
+{
+  "workoutId": "unique-workout-identifier",
+  "workoutData": {
+    "duration": 30,
+    "heart_rate": 120,
+    "distance": 5,
+    "movement_flag": true
+  },
+  "verificationResult": {
+    "verified": true,
+    "activityScore": 36,
+    "reason": ""
+  },
+  "rewards": {
+    "hubx": 18,
+    "btc": 0.0000036,
+    "doge": 3.6
+  },
+  "proofHash": "sha256-hash-of-workout-data",
+  "timestamp": "ISO-8601-timestamp"
+}
+```
+
+- `workoutId`: A unique identifier for each workout submission.
+- `workoutData`: The raw input data provided by the user.
+- `verificationResult`: The outcome of the verification process, including `verified` status, `activityScore`, and `reason` for rejection if any.
+- `rewards`: The calculated cryptocurrency rewards.
+- `proofHash`: A deterministic SHA256 hash of the `workoutData`, ensuring data integrity and immutability.
+- `timestamp`: The time when the proof certificate was generated.
+
+## 7. API Endpoint: `GET /proof/:workoutId`
+
+This endpoint allows retrieval of a stored Proof Certificate using its unique `workoutId`.
+
+**Request Parameters:**
+
+- `workoutId`: The unique identifier of the workout.
+
+**Response Body (Success - 200 OK):**
+
+```json
+{
+  "workoutId": "workout-789",
+  "workoutData": {
+    "duration": 45,
+    "heart_rate": 130,
+    "distance": 8,
+    "movement_flag": true
+  },
+  "verificationResult": {
+    "verified": true,
+    "activityScore": 67.5,
+    "reason": ""
+  },
+  "rewards": {
+    "hubx": 33.75,
+    "btc": 0.0000067,
+    "doge": 6.75
+  },
+  "proofHash": "d5d2806b613c2db02d312515a0aa3730ee9e4b6a09a8d25e937d9cdabecf6783",
+  "timestamp": "2026-03-12T10:00:00.000Z"
+}
+```
+
+**Response Body (Not Found - 404 Not Found):**
+
+```json
+{
+  "error": "Proof not found for workoutId: non-existent"
+}
+```
+
+## 8. Logging and Error Handling
+
+The backend incorporates comprehensive logging to monitor key operations and facilitate debugging. Error handling is implemented for malformed API requests and other operational issues.
+
+**Logged Events:**
+
+- **Workout Verification:** Records the incoming workout data and the outcome of the verification process.
+- **Reward Calculation:** Logs the activity score and the calculated rewards.
+- **Proof Generation:** Records the `workoutId` and the generated `proofHash` when a proof certificate is stored.
+- **API Request Errors:** Captures details of malformed requests, including missing or invalid parameters, and returns appropriate HTTP status codes (e.g., 400 Bad Request).
+
+**Error Handling:**
+
+- **Input Validation:** All incoming API requests are validated against expected data types and ranges. Invalid inputs result in a `400 Bad Request` response with a descriptive error message.
+- **Resource Not Found:** Attempts to retrieve non-existent resources (e.g., a proof certificate for an invalid `workoutId`) result in a `404 Not Found` response.
+- **Internal Server Errors:** Unforeseen errors are caught, logged, and result in a generic `500 Internal Server Error` to prevent sensitive information leakage.
